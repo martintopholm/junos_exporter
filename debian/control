@@ -1,0 +1,11 @@
+Source: one.com-junos-exporter
+Section: net
+Priority: extra
+Maintainer: Martin Topholm <mph@one.com>
+Build-Depends: golang (>= 2:1.11) | golang-1.11, build-essential
+
+Package: one.com-junos-exporter
+Architecture: any
+Depends: ${shlibdeps}
+Description: query interface towards the network platform.
+

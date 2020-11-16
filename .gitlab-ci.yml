@@ -1,0 +1,28 @@
+---
+stages:
+  - build
+  - release
+
+build:
+  stage: build
+  except:
+    - tags
+  script:
+    - ~/bin/build-deb
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - kitchen-build/*/*.buildinfo
+      - kitchen-build/*/*.changes
+      - kitchen-build/*/*.deb
+      - kitchen-build/*/*.ddeb
+
+release:
+  only:
+    - master@systems/one.com-junos-prometheus
+  when: manual
+  dependencies:
+    - build
+  stage: release
+  script:
+    - ~/bin/release-deb systems-production
