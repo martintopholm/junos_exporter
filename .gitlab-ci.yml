@@ -19,7 +19,7 @@ build:
 
 release:
   only:
-    - master@systems/one.com-junos-prometheus
+    - master@systems/one.com-junos-exporter
   when: manual
   dependencies:
     - build
