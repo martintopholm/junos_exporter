@@ -1,0 +1,13 @@
+[Unit]
+Description=Prometheus exporter for metrics from devices running JunOS
+Documentation=https://github.com/czerwonk/junos_exporter/blob/master/README.md
+After=network.target
+
+[Service]
+User=prometheus
+EnvironmentFile=/etc/default/junos_exporter
+ExecStart=/usr/bin/junos_exporter $ARGS
+#ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

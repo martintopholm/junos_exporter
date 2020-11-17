@@ -13,5 +13,7 @@ junos_exporter:
 install:
 	mkdir -p $(DESTDIR)/usr/sbin/
 	mkdir -p $(DESTDIR)/usr/share/man/man8
+	echo 'ARGS=""' > $(DESTDIR)/etc/defaults/junos_exporter
 	install -m 755 junos_exporter $(DESTDIR)/usr/sbin/
-	install -m 755 junos_exporter.8.gz $(DESTDIR)/usr/share/man/man8
+	install -m 644 junos_exporter.service $(DESTDIR)/usr/lib/systemd/system
+	install -m 644 junos_exporter.8.gz $(DESTDIR)/usr/share/man/man8
