@@ -1,0 +1,154 @@
+.nh
+.TH JUNOS\_EXPORTER 8 "NOVEMBER 2020" "Prometheus helper" "System Manager's Manual"
+.SH NAME
+.PP
+junos\_exporter \- prometheus junos exporter via ssh
+
+.SH SYNOPSIS
+.PP
+\fB\fCjunos\_exporter\fR [\fB\fC\-web.listen\-address\fR \fIaddress:port\fP] [\fB\fC\-config.file\fR \fIfile\fP] ...
+
+.SH DESCRIPTION
+.PP
+\fB\fCjunos\_exporter\fR collects metrics from Juniper devices via ssh. The set of
+metrics is minimal to increase performance. This is an alternative to
+snmp\_exporter that is very flexible but also very complex and may put a higher
+load on the device.
+
+.SH OPTIONS
+.PP
+\fB\fC\-accounting.enabled\fR
+  Scrape accounting flow metrics
+
+.PP
+\fB\fC\-alarms.filter string\fR
+  Regex to filter for alerts to ignore
+
+.PP
+\fB\fC\-bgp.enabled\fR
+  Scrape BGP metrics (default true)
+
+.PP
+\fB\fC\-config.file string\fR
+  Path to config file
+
+.PP
+\fB\fC\-config.ignore\-targets\fR
+  Ignore check if target is specified in config
+
+.PP
+\fB\fC\-debug\fR
+  Show verbose debug output in log
+
+.PP
+\fB\fC\-dynamic\-interface\-labels\fR
+  Parse interface descriptions to get labels dynamicly (default true)
+
+.PP
+\fB\fC\-environment.enabled\fR
+  Scrape environment metrics (default true)
+
+.PP
+\fB\fC\-firewall.enabled\fR
+  Scrape Firewall count metrics (default true)
+
+.PP
+\fB\fC\-fpc.enabled\fR
+  Scrape line card metrics (default true)
+
+.PP
+\fB\fC\-ifdiag.enabled\fR
+  Scrape optical interface diagnostic metrics (default true)
+
+.PP
+\fB\fC\-interfaces.enabled\fR
+  Scrape interface metrics (default true)
+
+.PP
+\fB\fC\-ipsec.enabled\fR
+  Scrape IPSec metrics
+
+.PP
+\fB\fC\-isis.enabled\fR
+  Scrape ISIS metrics
+
+.PP
+\fB\fC\-l2circuit.enabled\fR
+  Scrape l2circuit metrics
+
+.PP
+\fB\fC\-ldp.enabled\fR
+  Scrape ldp metrics (default true)
+
+.PP
+\fB\fC\-nat.enabled\fR
+  Scrape NAT metrics
+
+.PP
+\fB\fC\-ospf.enabled\fR
+  Scrape OSPFv3 metrics (default true)
+
+.PP
+\fB\fC\-queues.enabled\fR
+  Scrape interface queue metrics
+
+.PP
+\fB\fC\-routes.enabled\fR
+  Scrape routing table metrics (default true)
+
+.PP
+\fB\fC\-routingengine.enabled\fR
+  Scrape Routing Engine metrics (default true)
+
+.PP
+\fB\fC\-ssh.keep\-alive\-interval duration\fR
+  Duration to wait between keep alive messages (default 10s)
+
+.PP
+\fB\fC\-ssh.keep\-alive\-timeout duration\fR
+  Duration to wait for keep alive message response (default 15s)
+
+.PP
+\fB\fC\-ssh.keyfile string\fR
+  Public key file to use when connecting to junos devices using ssh
+
+.PP
+\fB\fC\-ssh.password string\fR
+  Password to use when connecting to junos devices using ssh
+
+.PP
+\fB\fC\-ssh.reconnect\-interval duration\fR
+  Duration to wait before reconnecting to a device after connection got lost (default 30s)
+
+.PP
+\fB\fC\-ssh.targets string\fR
+  Hosts to scrape
+
+.PP
+\fB\fC\-ssh.user string\fR
+  Username to use when connecting to junos devices using ssh (default "junos\_exporter")
+
+.PP
+\fB\fC\-storage.enabled\fR
+  Scrape system storage metrics (default true)
+
+.PP
+\fB\fC\-version\fR
+  Print version information.
+
+.PP
+\fB\fC\-web.listen\-address string\fR
+  Address on which to expose metrics and web interface. (default ":9326")
+
+.PP
+\fB\fC\-web.telemetry\-path string\fR
+  Path under which to expose metrics. (default "/metrics")
+
+.SH AUTHOR
+.PP
+Daniel Czerwonk
+
+.SH SEE ALSO
+.PP
+prometheus(1), Prometheus
+\[la]http://prometheus.io/\[ra]
