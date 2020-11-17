@@ -11,11 +11,11 @@ junos_exporter:
 	gzip -9 < junos_exporter.8 > junos_exporter.8.gz
 
 install:
-	mkdir -p $(DESTDIR)/etc/defaults/
+	mkdir -p $(DESTDIR)/etc/default/
 	mkdir -p $(DESTDIR)/usr/lib/systemd/system/
 	mkdir -p $(DESTDIR)/usr/bin/
 	mkdir -p $(DESTDIR)/usr/share/man/man8/
-	echo 'ARGS=""' > $(DESTDIR)/etc/defaults/junos_exporter
+	echo 'ARGS=""' > $(DESTDIR)/etc/default/junos_exporter
 	install -m 644 junos_exporter.service $(DESTDIR)/usr/lib/systemd/system/
 	install -m 755 junos_exporter $(DESTDIR)/usr/bin/
 	install -m 644 junos_exporter.8.gz $(DESTDIR)/usr/share/man/man8/
