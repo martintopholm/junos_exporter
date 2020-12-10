@@ -46,10 +46,24 @@ func deviceFromDeviceConfig(device *config.DeviceConfig, cfg *config.Config) (*c
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not initialize config for device %s", device.Host)
 	}
+	jump := device.Jumphost
+	if jump.Host == "" {
+		jump = cfg.Jumphost
+	}
+	var authJump connector.AuthMethod
+	if jump.Host != "" {
+		auth, err := authForJumphost(&jump, cfg)
+		if err != nil {
+			return nil, errors.Wrapf(err, "could not initialize config for device %s", device.Host)
+		}
+		authJump = auth
+	}
 
 	return &connector.Device{
-		Host: device.Host,
-		Auth: auth,
+		Jumphost:     jump.Host,
+		JumphostAuth: authJump,
+		Host:         device.Host,
+		Auth:         auth,
 	}, nil
 }
 
@@ -69,6 +83,35 @@ func authForDevice(device *config.DeviceConfig, cfg *config.Config) (connector.A
 
 	if device.Password != "" {
 		return connector.AuthByPassword(user, device.Password), nil
+	}
+
+	if cfg.Password != "" {
+		return connector.AuthByPassword(user, cfg.Password), nil
+	}
+
+	if *sshPassword != "" {
+		return connector.AuthByPassword(user, *sshPassword), nil
+	}
+
+	return nil, errors.New("no valid authentication method available")
+}
+
+func authForJumphost(jumphost *config.JumphostConfig, cfg *config.Config) (connector.AuthMethod, error) {
+	user := *sshUsername
+	if jumphost.Username != "" {
+		user = jumphost.Username
+	}
+
+	if jumphost.KeyFile != "" {
+		return authForKeyFile(user, jumphost.KeyFile)
+	}
+
+	if *sshKeyFile != "" {
+		return authForKeyFile(user, *sshKeyFile)
+	}
+
+	if jumphost.Password != "" {
+		return connector.AuthByPassword(user, jumphost.Password), nil
 	}
 
 	if cfg.Password != "" {

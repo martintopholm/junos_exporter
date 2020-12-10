@@ -109,9 +109,33 @@ func (m *SSHConnectionManager) connectToDevice(device *Device) (*ssh.Client, net
 
 	host := m.tcpAddressForHost(device.Host)
 
-	conn, err := net.DialTimeout("tcp", host, cfg.Timeout)
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "could not open tcp connection")
+	var conn net.Conn
+	if device.Jumphost != "" {
+		cfgJump := &ssh.ClientConfig{
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+			Timeout:         timeoutInSeconds * time.Second,
+		}
+		device.JumphostAuth(cfgJump)
+		jump := m.tcpAddressForHost(device.Jumphost)
+		connJump, err := net.DialTimeout("tcp", jump, cfgJump.Timeout)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "could not open jumphost tcp connection")
+		}
+		c, chans, reqs, err := ssh.NewClientConn(connJump, jump, cfgJump)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "could not connect jumphost")
+		}
+		client := ssh.NewClient(c, chans, reqs)
+		conn, err = client.Dial("tcp", host)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "could not open tcp connection through jumphost")
+		}
+	} else {
+		var err error
+		conn, err = net.DialTimeout("tcp", host, cfg.Timeout)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "could not open tcp connection")
+		}
 	}
 
 	c, chans, reqs, err := ssh.NewClientConn(conn, host, cfg)

@@ -7,8 +7,10 @@ import (
 )
 
 type Device struct {
-	Host string
-	Auth AuthMethod
+	Jumphost     string
+	JumphostAuth AuthMethod
+	Host         string
+	Auth         AuthMethod
 }
 
 // AuthMethod is the method to use to authenticate agaist the device

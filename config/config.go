@@ -9,6 +9,7 @@ import (
 
 // Config represents the configuration for the exporter
 type Config struct {
+	Jumphost  JumphostConfig  `yaml:"jumphost"`
 	Password  string          `yaml:"password"`
 	Targets   []string        `yaml:"targets,omitempty"`
 	Devices   []*DeviceConfig `yaml:"devices,omitempty"`
@@ -18,11 +19,19 @@ type Config struct {
 
 // DeviceConfig is the config representation of 1 device
 type DeviceConfig struct {
+	Jumphost JumphostConfig `yaml:"jumphost"`
 	Host     string         `yaml:"host"`
 	Username string         `yaml:"username,omitempty"`
 	Password string         `yaml:"password,omitempty"`
 	KeyFile  string         `yaml:"key_file,omitempty"`
 	Features *FeatureConfig `yaml:"features,omitempty"`
+}
+
+type JumphostConfig struct {
+	Host     string `yaml:"host"`
+	Username string `yaml:"username,omitempty"`
+	Password string `yaml:"password,omitempty"`
+	KeyFile  string `yaml:"key_file,omitempty"`
 }
 
 // FeatureConfig is the list of collectors enabled or disabled
@@ -78,6 +87,7 @@ func Load(reader io.Reader) (*Config, error) {
 }
 
 func setDefaultValues(c *Config) {
+	c.Jumphost.Host = ""
 	c.Password = ""
 	c.LSEnabled = false
 	f := &c.Features
