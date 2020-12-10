@@ -104,6 +104,11 @@ func (c *collectors) addCollectorIfEnabledForDevice(device *connector.Device, ke
 	}
 
 	c.devices[device.Host] = append(c.devices[device.Host], col)
+	// Move routingengine collector up front to get a better impression of CPU load
+	if key == "routingengine" {
+		length := len(c.devices[device.Host])
+		c.devices[device.Host] = append([]collector.RPCCollector{col}, c.devices[device.Host][:length-1]...)
+	}
 }
 
 func (c *collectors) allEnabledCollectors() []collector.RPCCollector {
