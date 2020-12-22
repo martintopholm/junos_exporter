@@ -1,6 +1,8 @@
 package routingengine
 
 import (
+	"strings"
+
 	"github.com/czerwonk/junos_exporter/collector"
 	"github.com/czerwonk/junos_exporter/rpc"
 	"github.com/prometheus/client_golang/prometheus"
@@ -22,6 +24,7 @@ var (
 	loadAverageFifteen *prometheus.Desc
 	reStatus           *prometheus.Desc
 	uptime             *prometheus.Desc
+	info               *prometheus.Desc
 )
 
 func init() {
@@ -39,6 +42,7 @@ func init() {
 	loadAverageFifteen = prometheus.NewDesc(prefix+"load_average_fifteen", "Routing Engine load averages for the last 15 minutes", l, nil)
 	uptime = prometheus.NewDesc(prefix+"uptime_seconds", "Seconds since boot", l, nil)
 	reStatus = prometheus.NewDesc(prefix+"status", "Status of routing-engine (1 OK, 2 Testing, 3 Failed, 4 Absent, 5 Present)", l, nil)
+	info = prometheus.NewDesc(prefix+"info", "Information on hardware model and software for the routing-engine", append(l, []string{"model", "software"}...), nil)
 }
 
 type routingEngineCollector struct {
@@ -69,6 +73,7 @@ func (*routingEngineCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- loadAverageFifteen
 	ch <- reStatus
 	ch <- uptime
+	ch <- info
 }
 
 // Collect collects metrics from JunOS
@@ -81,6 +86,11 @@ func (c *routingEngineCollector) Collect(client *rpc.Client, ch chan<- prometheu
 
 	for _, re := range x.Information.RouteEngine {
 		c.collectForSlot(re, ch, labelValues)
+	}
+
+	err = c.collectVersion(client, ch, labelValues)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -111,5 +121,29 @@ func (c *routingEngineCollector) collectForSlot(re RouteEngine, ch chan<- promet
 	}
 	ch <- prometheus.MustNewConstMetric(reStatus, prometheus.GaugeValue, float64(statusValues[re.Status]), l...)
 
+	return nil
+}
+
+func (c *routingEngineCollector) collectVersion(client *rpc.Client, ch chan<- prometheus.Metric, labelValues []string) error {
+	var x = VersionRpc{}
+
+	err := client.RunCommandAndParse("show version", &x)
+	if err != nil {
+		return err
+	}
+	if len(x.MultiEngineResults.Items) == 0 {
+		l := append(labelValues, "", x.SoftwareInfo.Model, x.SoftwareInfo.Version())
+		ch <- prometheus.MustNewConstMetric(info, prometheus.GaugeValue, 1, l...)
+	}
+	for _, re := range x.MultiEngineResults.Items {
+		if strings.HasPrefix(re.Slot, "fpc") {
+			re.Slot = re.Slot[3:]
+		}
+		if strings.HasPrefix(re.Slot, "localre") {
+			re.Slot = ""
+		}
+		l := append(labelValues, re.Slot, re.SoftwareInfo.Model, re.SoftwareInfo.Version())
+		ch <- prometheus.MustNewConstMetric(info, prometheus.GaugeValue, 1, l...)
+	}
 	return nil
 }

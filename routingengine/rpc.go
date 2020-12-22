@@ -1,5 +1,9 @@
 package routingengine
 
+import (
+	"regexp"
+)
+
 type RoutingEngineRpc struct {
 	Information struct {
 		RouteEngine []RouteEngine `xml:"route-engine"`
@@ -27,4 +31,42 @@ type RouteEngine struct {
 
 type RouteEngineTemperature struct {
 	Value float64 `xml:"celsius,attr"`
+}
+
+type VersionRpc struct {
+	MultiEngineResults struct {
+		Items []struct {
+			Slot         string      `xml:"re-name"`
+			SoftwareInfo VersionInfo `xml:"software-information"`
+		} `xml:"multi-routing-engine-item"`
+	} `xml:"multi-routing-engine-results"`
+	SoftwareInfo VersionInfo `xml:"software-information"`
+}
+
+type VersionInfo struct {
+	Model        string `xml:"product-model"`
+	JunosVersion string `xml:"junos-version"`
+	PackageInfo  []struct {
+		Name    string `xml:"name"`
+		Comment string `xml:"comment"`
+	} `xml:"package-information"`
+}
+
+var reVersionComment = regexp.MustCompile(`[^[]*\[([^]]+)\]$`)
+
+func (v VersionInfo) Version() string {
+	if v.JunosVersion != "" {
+		return v.JunosVersion
+	}
+	for _, x := range v.PackageInfo {
+		if x.Name != "jbase" {
+			continue
+		}
+		parts := reVersionComment.FindStringSubmatch(x.Comment)
+		if len(parts) > 1 {
+			return parts[1]
+		}
+		break
+	}
+	return ""
 }
